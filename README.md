@@ -3,6 +3,10 @@ Krak Bot
 
 Krak Bot an intelligent chat bot for [Microsoft Teams (free)](https://teams.live.com/) using Bing AI (Sydney) via [node-chatgpt-api](https://github.com/waylaidwanderer/node-chatgpt-api). You can ask any questions and get accurate answers straight from Microsoft Teams.
 
+## Demo video
+
+https://github.com/niutech/krak-bot/assets/384997/c10f83af-4c53-4731-991b-f4f13ada6e58
+
 ## Usage
 
 1. Go to Krak Bot directory and install its dependencies: `npm install`
