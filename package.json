@@ -1,0 +1,17 @@
+{
+  "name": "krak-bot",
+  "version": "1.0.0",
+  "description": "Chat bot for Microsoft Teams (free) using Bing AI",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {},
+  "author": "niu tech",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@waylaidwanderer/chatgpt-api": "^1.37.0",
+    "markdown-it": "^13.0.1",
+    "markdown-it-footnote": "^3.0.3",
+    "markdown-it-sup": "^1.0.0",
+    "node-fetch": "^3.3.1"
+  }
+}
