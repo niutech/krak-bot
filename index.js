@@ -10,7 +10,7 @@ if (!process.env.ACCESS_TOKEN) {
     process.exit(1);
 }
 
-const authorization = "Bearer " + process.env.ACCESS_TOKEN;
+const authorizationHeader = "Bearer " + process.env.ACCESS_TOKEN;
 const bingOptions = {
     userToken: '',
     cookies: '',
@@ -46,29 +46,31 @@ const strings = {
 let res, json, bingAIClient = new BingAIClient(bingOptions), bingResponse = {}, msgIds = {};
 
 res = await fetch("https://teams.live.com/api/auth/v1.0/authz/consumer", {
-    "headers": {
+    headers: {
         ...defaultHeaders,
-        authorization,
+        authorizationHeader,
         "claimschallengecapable": "true",
         "ms-teams-authz-type": "ExplicitLogin"
     },
-    "body": null,
-    "method": "POST"
+    body: null,
+    method: "POST"
 });
 json = await res.json();
 const skypetoken = json.skypeToken?.skypetoken;
 const skypeid = json.skypeToken?.skypeid;
-if (!skypetoken)
-    throw json;
+if (!skypetoken) {
+    console.error('Cannot authenticate:', json);
+    process.exit(2);
+}
 
 res = await fetch("https://msgapi.teams.live.com/v2/users/ME/endpoints/" + uuid, {
-    "headers": {
+    headers: {
         ...defaultHeaders,
         "authentication": "skypetoken=" + skypetoken,
         "content-type": "application/json"
     },
-    "body": "{\"startingTimeSpan\":0,\"endpointFeatures\":\"Agent,Presence2015,MessageProperties,CustomUserProperties,NotificationStream,SupportsSkipRosterFromThreads\",\"subscriptions\":[{\"channelType\":\"HttpLongPoll\",\"interestedResources\":[\"/v1/users/ME/conversations/ALL/properties\",\"/v1/users/ME/conversations/ALL/messages\",\"/v1/threads/ALL\"]}]}",
-    "method": "PUT"
+    body: "{\"startingTimeSpan\":0,\"endpointFeatures\":\"Agent,Presence2015,MessageProperties,CustomUserProperties,NotificationStream,SupportsSkipRosterFromThreads\",\"subscriptions\":[{\"channelType\":\"HttpLongPoll\",\"interestedResources\":[\"/v1/users/ME/conversations/ALL/properties\",\"/v1/users/ME/conversations/ALL/messages\",\"/v1/threads/ALL\"]}]}",
+    method: "PUT"
 });
 json = await res.json();
 let longPollUrl = json.subscriptions[0].longPollUrl;
@@ -76,12 +78,12 @@ console.log('Waiting for messages...');
 
 while (res.ok) {
     res = await fetch(longPollUrl, {
-        "headers": {
+        headers: {
             ...defaultHeaders,
             "authentication": "skypetoken=" + skypetoken
         },
-        "body": null,
-        "method": "GET"
+        body: null,
+        method: "GET"
     });
     json = await res.json();
     longPollUrl = json.next;
@@ -169,7 +171,7 @@ function sendReply(reply, clientMsgId, conversationId) {
         method = 'PUT';
     }
     fetch(url, {
-        "headers": {
+        headers: {
             ...defaultHeaders,
             "authentication": "skypetoken=" + skypetoken,
             "content-type": "application/json"
@@ -181,12 +183,12 @@ function sendReply(reply, clientMsgId, conversationId) {
 
 function sendTyping(conversationId) {
     fetch("https://msgapi.teams.live.com/v1/users/ME/conversations/" + conversationId + "/messages", {
-        "headers": {
+        headers: {
             ...defaultHeaders,
             "authentication": "skypetoken=" + skypetoken,
             "content-type": "application/json"
         },
-        "body": "{\"messagetype\":\"Control/Typing\",\"contenttype\":\"Application/Message\",\"content\":\"\"}",
-        "method": "POST"
+        body: "{\"messagetype\":\"Control/Typing\",\"contenttype\":\"Application/Message\",\"content\":\"\"}",
+        method: "POST"
     });
 }
